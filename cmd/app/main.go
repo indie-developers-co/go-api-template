@@ -1,18 +1,16 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
-	"gitlab.com/indie-developers/go-api-standard-library/api/controllers"
+	"github.com/labstack/echo/v4"
+	"gitlab.com/indie-developers/go-api-echo-template/api/controllers"
 )
 
-func main() {
-	mux := http.NewServeMux()
-	mux.Handle("/healthcheck", &controllers.HealthCheck{})
+const baseAPI = "/api/template"
 
-	log.Println("app is running!")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
-		log.Fatalf("app has stopped, %s", err.Error())
-	}
+func main() {
+	e := echo.New()
+	base := e.Group(baseAPI, nil)
+	base.GET("/healthcheck", controllers.HealthCheck)
+
+	e.Logger.Fatal(e.Start(":8080"))
 }

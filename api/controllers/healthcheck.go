@@ -1,13 +1,11 @@
 package controllers
 
-import "net/http"
+import (
+	"net/http"
 
-type HealthCheck struct{}
+	"github.com/labstack/echo/v4"
+)
 
-func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	if r.Method == http.MethodGet {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("app is running!"))
-	}
+func HealthCheck(c echo.Context) error {
+	return c.String(http.StatusOK, "app is running!")
 }

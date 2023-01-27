@@ -5,11 +5,6 @@ stages:
 test:
   image: golang:1.19-alpine
   stage: test
-  cache:
-    key: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - $GOPATH/lib/*
-      - $GOPATH/src/*
   script:
     - CGO_ENABLED=0 go test ./... --short
   only:

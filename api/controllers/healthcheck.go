@@ -7,5 +7,5 @@ import (
 )
 
 func HealthCheck(c echo.Context) error {
-	return c.String(http.StatusOK, "app is running!")
+	return c.String(http.StatusOK, "Hello, World!")
 }

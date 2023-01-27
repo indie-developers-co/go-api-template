@@ -1,0 +1,42 @@
+stages:
+  - test
+  - deploy
+
+test:
+  image: golang:1.19-alpine
+  stage: test
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - $GOPATH/lib/*
+      - $GOPATH/src/*
+  script:
+    - CGO_ENABLED=0 go test ./... --short
+  only:
+    - main
+    - merge_requests
+
+deploy_staging:
+  image: alpine:latest
+  stage: deploy
+  script:
+    - echo "Deploying to staging server using Render Hook"
+    - apk --no-cache add curl
+    - curl https://api.render.com/deploy/$RENDER_SERVER_ID?key=$RENDER_SERVER_KEY
+  environment:
+    name: staging
+  only:
+    - main
+
+deploy_prod:
+  image: alpine:latest
+  stage: deploy
+  script:
+    - echo "Deploying to production server using Render Hook"
+    - apk --no-cache add curl
+    - curl https://api.render.com/deploy/$RENDER_SERVER_ID?key=$RENDER_SERVER_KEY
+  environment:
+    name: production
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual

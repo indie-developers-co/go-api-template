@@ -19,7 +19,7 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 # Go workspace file
 go.work
@@ -29,3 +29,6 @@ go.work
 # IDE
 .vscode/
 .idea/
+
+# Coverage xml
+coverage.xml

@@ -1,15 +1,37 @@
+image: golang:1.20
+
 stages:
   - test
   - deploy
 
 test:
-  image: golang:1.19-alpine
   stage: test
+  before_script:
+    - apt update
+    - apt-get install bc -y
+    - mkdir -p .go
+    - export GOPATH="$CI_PROJECT_DIR/.go"
+    - export PATH="$PATH:$GOPATH/bin"
   script:
-    - CGO_ENABLED=0 go test ./... --short
-  only:
-    - main
-    - merge_requests
+    - make dep
+    - make lint
+    - make test_coverage
+    - make race
+    - make xml
+  cache:
+    paths:
+      - .go/
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    expire_in: 5 minutes
+  rules:
+    - if: $CI_COMMIT_TITLE =~ /-draft$/
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 deploy_staging:
   image: alpine:latest
@@ -20,8 +42,8 @@ deploy_staging:
     - curl https://api.render.com/deploy/$RENDER_SERVER_ID?key=$RENDER_SERVER_KEY
   environment:
     name: staging
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 deploy_prod:
   image: alpine:latest

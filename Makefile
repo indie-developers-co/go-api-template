@@ -4,7 +4,7 @@ PKG_LIST := $(shell go list ./... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 TEST_COVERAGE_THRESHOLD = 100
 
-.PHONY: build, test, test_coverage, test_coverage_html, test_coverage_xml, run, tidy, fmt, vet, race, dep, imports, runner-test
+.PHONY: build, test, test_coverage, test_coverage_html, test_coverage_xml, run, tidy, fmt, vet, race, dep, imports, infra, infra-down, runner-test
 
 build: dep
 	@go build -o main cmd/app/main.go
@@ -42,7 +42,7 @@ xml:
 run:
 	@go run cmd/app/main.go
 
-tidy: 
+tidy:
 	@go mod tidy
 
 fmt: tidy
@@ -55,16 +55,26 @@ lint: tidy
 
 race: tidy
 	@go test ./... -race -short ${PKG_LIST}
-	
+
 dep: tidy
 	go mod download
 	go install golang.org/x/tools/cmd/goimports@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 	go install github.com/boumenot/gocover-cobertura@latest
 	go install github.com/go-critic/go-critic/cmd/gocritic@latest
+	go install github.com/vektra/mockery/v2@v2.20.0
 
 imports:
 	@goimports -l ./..
 
+infra:
+	@docker-compose up -d
+
+infra-down:
+	@docker-compose down --remove-orphans
+
 runner-test:
 	@gitlab-runner exec docker test
+
+mocks:
+	mockery --all --dir internal --output ./tests/mocks --case underscore

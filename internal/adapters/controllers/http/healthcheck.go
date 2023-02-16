@@ -1,4 +1,4 @@
-package controllers
+package http
 
 import (
 	"net/http"
@@ -6,6 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func HealthCheck(c echo.Context) error {
+func HandleHealthCheck(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World Indie-developers!")
 }

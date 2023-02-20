@@ -18,7 +18,7 @@ func NewUser(client *gorm.DB) repositories.UserStorage {
 	return &User{client: client}
 }
 
-func (u *User) New(ctx context.Context, user request.User) error {
+func (u *User) New(ctx context.Context, user request.CreateUserRequest) error {
 	userEntity := entities.User{
 		Name:     user.Name,
 		LastName: user.LastName,

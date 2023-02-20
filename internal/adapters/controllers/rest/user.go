@@ -1,4 +1,4 @@
-package http
+package rest
 
 import (
 	"net/http"
@@ -23,7 +23,7 @@ func NewUser(useCases repositories.UserUseCases) UserController {
 
 func (u *User) CreateUser(c echo.Context) error {
 	ctx := c.Request().Context()
-	var model request.User
+	var model request.CreateUserRequest
 
 	if err := c.Bind(&model); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)

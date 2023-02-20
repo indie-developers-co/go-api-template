@@ -4,7 +4,7 @@ PKG_LIST := $(shell go list ./... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 TEST_COVERAGE_THRESHOLD = 100
 
-.PHONY: build, test, test_coverage, test_coverage_html, test_coverage_xml, run, tidy, fmt, vet, race, dep, imports, infra, infra-down, runner-test
+.PHONY: build, test, test_coverage, test_coverage_html, test_coverage_xml, run, tidy, fmt, vet, race, dep, imports, infra, infra-down, runner-test, proto, evans
 
 build: dep
 	@go build -o main cmd/app/main.go
@@ -39,7 +39,7 @@ xml:
 	@gocover-cobertura < coverage.out > coverage.xml
 	@rm coverage.out ;\
 
-run:
+run: infra
 	@go run cmd/app/main.go
 
 tidy:
@@ -63,6 +63,9 @@ dep: tidy
 	go install github.com/boumenot/gocover-cobertura@latest
 	go install github.com/go-critic/go-critic/cmd/gocritic@latest
 	go install github.com/vektra/mockery/v2@v2.20.0
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+
 
 imports:
 	@goimports -l ./..
@@ -78,3 +81,13 @@ runner-test:
 
 mocks:
 	mockery --all --dir internal --output ./tests/mocks --case underscore
+
+.PHONY: proto
+proto:
+	@rm -f pb/*.go
+	@protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+         --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+         proto/*.proto
+
+evans:
+	evans --host localhost --port 50051 -r repl

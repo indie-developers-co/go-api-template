@@ -1,12 +1,11 @@
 package govalidator
 
 import (
+	"encoding/json"
 	"errors"
-	"net/http"
 
 	govalidator "github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/non-standard/validators"
-	"github.com/labstack/echo/v4"
 	"gitlab.com/indie-developers/go-api-echo-template/pkg/validator"
 )
 
@@ -27,7 +26,8 @@ type ErrorResponse struct {
 }
 
 func (e ErrorResponse) Error() string {
-	return e.Message
+	jsonBody, _ := json.Marshal(e.Errors)
+	return string(jsonBody)
 }
 
 type RequestValidator struct {
@@ -45,7 +45,7 @@ func (cv *RequestValidator) Validate(i interface{}) error {
 	if errs := cv.validator.Struct(i); errs != nil {
 		var validationErrors govalidator.ValidationErrors
 		errors.As(errs, &validationErrors)
-		return echo.NewHTTPError(http.StatusBadRequest, createErrorResponse(validationErrors))
+		return createErrorResponse(validationErrors)
 	}
 	return nil
 }

@@ -4,6 +4,9 @@ import (
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	echoSwagger "github.com/swaggo/echo-swagger"
+	_ "gitlab.com/indie-developers/go-api-echo-template/docs"
+
 	"gitlab.com/indie-developers/go-api-echo-template/internal/adapters/controllers/rest"
 	"gitlab.com/indie-developers/go-api-echo-template/pkg/router"
 )
@@ -25,6 +28,8 @@ func (r *routers) ApplyConfiguration() {
 		StackSize: 1 << 10, // 1 KiB
 		LogLevel:  log.ERROR,
 	}))
+
+	r.server.GET("/docs/*", echoSwagger.WrapHandler)
 
 	apiBase := r.server.Group(router.BasePathV1)
 	apiBase.GET("/healthcheck", rest.HandleHealthCheck)

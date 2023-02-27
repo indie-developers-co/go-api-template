@@ -3,7 +3,7 @@ package rpc
 import (
 	"context"
 
-	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/models/request"
+	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/models/requests"
 	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/repositories"
 	"gitlab.com/indie-developers/go-api-echo-template/pb"
 	"gitlab.com/indie-developers/go-api-echo-template/pkg/validator"
@@ -22,7 +22,7 @@ func NewUserController(userUseCases repositories.UserUseCases, validator validat
 }
 
 func (u *userController) CreateUser(ctx context.Context, in *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
-	model := request.CreateUserRequest{
+	model := requests.CreateUserRequest{
 		Name:     in.GetName(),
 		LastName: in.GetLastName(),
 		Email:    in.GetEmail(),

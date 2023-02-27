@@ -4,9 +4,10 @@ PKG_LIST := $(shell go list ./... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 TEST_COVERAGE_THRESHOLD = 100
 
-.PHONY: build, test, test_coverage, test_coverage_html, test_coverage_xml, run, tidy, fmt, vet, race, dep, imports, infra, infra-down, runner-test, proto, evans
+.PHONY: build, test, test_coverage, test_coverage_html, test_coverage_xml, run, tidy, fmt, vet, race, dep, imports, \
+	infra, infra-down, runner-test, proto, evans, docs
 
-build: dep
+build: dep docs
 	@go build -o main cmd/app/main.go
 
 test:
@@ -39,13 +40,13 @@ xml:
 	@gocover-cobertura < coverage.out > coverage.xml
 	@rm coverage.out ;\
 
-run: infra
+run: infra docs
 	@go run cmd/app/main.go
 
 tidy:
 	@go mod tidy
 
-fmt: tidy
+fmt: tidy docs
 	@go fmt ./... ${PKG_LIST}
 
 lint: tidy
@@ -57,14 +58,15 @@ race: tidy
 	@go test ./... -race -short ${PKG_LIST}
 
 dep: tidy
-	go mod download
-	go install golang.org/x/tools/cmd/goimports@latest
-	go install honnef.co/go/tools/cmd/staticcheck@latest
-	go install github.com/boumenot/gocover-cobertura@latest
-	go install github.com/go-critic/go-critic/cmd/gocritic@latest
-	go install github.com/vektra/mockery/v2@v2.20.0
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+	@go mod download
+	@go install golang.org/x/tools/cmd/goimports@latest
+	@go install honnef.co/go/tools/cmd/staticcheck@latest
+	@go install github.com/boumenot/gocover-cobertura@latest
+	@go install github.com/go-critic/go-critic/cmd/gocritic@latest
+	@go install github.com/vektra/mockery/v2@v2.20.0
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+	@go install github.com/swaggo/swag/cmd/swag@latest
 
 
 imports:
@@ -90,4 +92,8 @@ proto:
          proto/*.proto
 
 evans:
-	evans --host localhost --port 50051 -r repl
+	@evans --host localhost --port 50051 -r repl
+
+docs:
+	@swag init --quiet --generalInfo ./cmd/app/main.go --parseInternal --codeExampleFiles ./docs/examples
+	@swag fmt

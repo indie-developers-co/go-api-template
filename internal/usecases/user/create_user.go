@@ -3,9 +3,9 @@ package user
 import (
 	"context"
 
-	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/models/request"
+	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/models/requests"
 )
 
-func (u *User) Create(ctx context.Context, user request.CreateUserRequest) error {
+func (u *User) Create(ctx context.Context, user requests.CreateUserRequest) error {
 	return u.db.New(ctx, user)
 }

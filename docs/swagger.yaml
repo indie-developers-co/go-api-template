@@ -1,0 +1,122 @@
+basePath: /api/v1/template/
+definitions:
+  requests.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      last_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - email
+    - last_name
+    - name
+    type: object
+  responses.GetUsersResponse:
+    properties:
+      email:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      name:
+        type: string
+    type: object
+info:
+  contact:
+    email: shorcutbot.indiedevelopers@gmail.com
+    name: indie-developers
+  description: this is a template created with hexagonal architecture for Golang APIs,
+    it includes multiple cases using popular web frameworks like Gin or Echo, and
+    gRPC. For more information contact us to our email.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Go API Template
+  version: 0.1.0
+paths:
+  /user:
+    get:
+      description: Get all users registered in our database
+      operationId: get-users
+      parameters:
+      - description: requester name
+        in: header
+        name: x-application-id
+        required: true
+        type: string
+      - description: UUID request
+        in: header
+        name: x-request-id
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responses.GetUsersResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+      summary: get-users
+      tags:
+      - User Controller
+      x-codeSamples:
+      - label: get all users
+        lang: curl
+        source: |-
+          curl --location 'http://localhost:8080/api/v1/template/user' \
+          --header 'Content-Type: application/json' \
+          --header 'x-application-id: Cristian Morales' \
+          --header 'x-request-id;' \
+          --data ''
+    post:
+      description: Create a new user
+      operationId: create-user
+      parameters:
+      - description: requester name
+        in: header
+        name: x-application-id
+        required: true
+        type: string
+      - description: UUID request
+        in: header
+        name: x-request-id
+        type: string
+      - description: Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateUserRequest'
+      responses:
+        "201":
+          description: user has been created successfully
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+      summary: create-user
+      tags:
+      - User Controller
+      x-codeSamples:
+      - label: create a new user
+        lang: curl
+        source: |-
+          curl --location 'http://localhost:8080/api/v1/template/user' \
+          --header 'Content-Type: application/json' \
+          --header 'x-application-id: Cristian Morales' \
+          --header 'x-request-id;' \
+          --data-raw '{
+              "name": "john",
+              "last_name": "smith",
+              "email":"email5@email.com"
+          }'
+swagger: "2.0"

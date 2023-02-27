@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/models/request"
+	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/models/requests"
+	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/models/responses"
 	"gitlab.com/indie-developers/go-api-echo-template/internal/domains/repositories"
 )
 
@@ -21,9 +22,22 @@ func NewUser(useCases repositories.UserUseCases) UserController {
 	return &User{userUseCases: useCases}
 }
 
+// CreateUser godoc
+//
+//	@ID				create-user
+//	@Summary		create-user
+//	@Tags			User Controller
+//	@Description	Create a new user
+//	@Param			x-application-id	header		string						true	"requester name"
+//	@Param			x-request-id		header		string						false	"UUID request"
+//	@Param			request				body		requests.CreateUserRequest	true	"Request"
+//	@Success		201					{string}	string						"user has been created successfully"
+//	@Failure		500
+//	@x-codeSamples	file
+//	@Router			/user [post]
 func (u *User) CreateUser(c echo.Context) error {
 	ctx := c.Request().Context()
-	var model request.CreateUserRequest
+	var model requests.CreateUserRequest
 
 	if err := c.Bind(&model); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -38,17 +52,28 @@ func (u *User) CreateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusCreated, nil)
+	return c.JSON(http.StatusCreated, "user has been created successfully")
 }
 
+// GetUsers godoc
+//
+//	@ID				get-users
+//	@Summary		get-users
+//	@Tags			User Controller
+//	@Description	Get all users registered in our database
+//	@Param			x-application-id	header	string	true	"requester name"
+//	@Param			x-request-id		header	string	false	"UUID request"
+//	@Success		200					{array}	responses.GetUsersResponse
+//	@Failure		500
+//	@x-codeSamples	file
+//	@Router			/user [get]
 func (u *User) GetUsers(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	models, err := u.userUseCases.GetAll(ctx)
+	users, err := u.userUseCases.GetAll(ctx)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusOK, models)
-
+	return c.JSON(http.StatusOK, responses.ConvertToGetUsersResponseStruct(users))
 }
